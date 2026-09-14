@@ -28,7 +28,7 @@ tools:
       required: [query, category]
 
   - name: check_service_status
-    description: "Kiểm tra trạng thái shared service trong đúng environment. Gọi riêng một lần cho mỗi cặp service/environment. Chỉ dùng production hoặc staging; nếu user nói demo/QA hoặc giá trị mơ hồ thì gọi clarify thay vì tự map."
+    description: "Kiểm tra trạng thái shared service chỉ khi user nói rõ environment chính xác là production hoặc staging. Gọi riêng một lần cho mỗi cặp. TUYỆT ĐỐI không map demo, test, QA hay nhãn khác sang enum; trong trường hợp đó chỉ gọi clarify choice."
     parameters:
       type: object
       properties:
@@ -41,16 +41,16 @@ tools:
     parameters:
       type: object
       properties:
-        asset_id: {type: string, description: "Mã tài sản"}
+        asset_id: {type: string, pattern: "^(LT|DT|PR)-[0-9]+$", description: "Mã tài sản được user nói rõ, ví dụ LT-204; không tự tạo từ mô tả"}
         check: {type: string, enum: [all, network, vpn, security, hardware, software], default: "all", description: "Nhóm kiểm tra"}
       required: [asset_id, check]
 
   - name: lookup_user
-    description: "Tra cứu đúng một employee ID dạng EMP-<số> và record thiết bị được cấp. Không gọi thêm lần nữa cho cùng ID, không dùng tên phòng ban làm employee_id, và không tự inspect thiết bị nếu user chỉ yêu cầu tra cứu record."
+    description: "Tra cứu đúng một employee ID được user nói rõ theo dạng EMP-<chữ số> và record thiết bị được cấp. Nếu chỉ có tên/phòng ban/team thì CHỈ gọi clarify text; tuyệt đối không tạo EMP-Sales hay identifier suy đoán. Không gọi lặp cùng ID và không tự inspect thiết bị."
     parameters:
       type: object
       properties:
-        employee_id: {type: string, description: "Mã nhân viên"}
+        employee_id: {type: string, pattern: "^EMP-[0-9]+$", description: "Mã nhân viên được user cung cấp rõ, ví dụ EMP-1003"}
       required: [employee_id]
 
   - name: format_incident_report
