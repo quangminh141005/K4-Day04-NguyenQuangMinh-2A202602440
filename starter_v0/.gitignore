@@ -9,3 +9,11 @@ __pycache__/
 /runs/
 /transcripts/
 /analysis/
+!/runs/
+/runs/*
+!/runs/v0_B_base_openrouter_20260914T204803328281.json
+!/runs/v1_B_base_openrouter_20260914T210712641050.json
+!/runs/v2_B_base_openrouter_20260914T211505260455.json
+!/runs/v3_B_base_openrouter_20260914T212233498518.json
+!/runs/v3_B_group_openrouter_20260914T212646349829.json
+!/runs/v3_B_adversarial_openrouter_20260914T212719917929.json

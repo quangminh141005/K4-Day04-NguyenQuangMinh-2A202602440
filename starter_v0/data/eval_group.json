@@ -1,7 +1,104 @@
 {
   "dataset_id": "day04_v3_helpdesk_group",
   "dataset_role": "group",
-  "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
+  "description": "Solo-authored group-simulation suite: exactly 5 single-turn and 5 multi-turn original IT helpdesk cases. No additional teammate identity is claimed.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_printing_two_envs", "phase": "B", "suite": "group",
+      "query": "Kiểm tra dịch vụ printing ở cả production lẫn staging.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [
+        {"name": "check_service_status", "args": {"service": "printing", "environment": "production"}},
+        {"name": "check_service_status", "args": {"service": "printing", "environment": "staging"}}
+      ]},
+      "metadata": {"skill": "repeat_status_tool", "difficulty": "hard", "what_it_tests": "Hai environment cần hai call độc lập."}
+    },
+    {
+      "id": "G02_missing_asset_security", "phase": "B", "suite": "group",
+      "query": "Kiểm tra security trên máy workstation của phòng Finance.",
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"skill": "no_asset_guess", "difficulty": "medium", "what_it_tests": "Mô tả phòng ban không thay asset ID."}
+    },
+    {
+      "id": "G03_existing_email_findings", "phase": "B", "suite": "group",
+      "query": "Findings đã có: email staging operational, latency 42ms. Chỉ format thành brief report tên 'Email staging snapshot'.",
+      "failure_type": "unnecessary_tool",
+      "expect": {"tool_calls": [{"name": "format_incident_report", "args": {"template": "brief", "incident_title": "Email staging snapshot"}}]},
+      "metadata": {"skill": "format_only", "difficulty": "medium", "what_it_tests": "Không thu thập lại findings có sẵn."}
+    },
+    {
+      "id": "G04_unknown_environment", "phase": "B", "suite": "group",
+      "query": "SSO ở môi trường UAT hiện có ổn không?",
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "choice", "options": ["production", "staging"]}}]},
+      "metadata": {"skill": "no_environment_coercion", "difficulty": "hard", "what_it_tests": "UAT không được tự map sang enum."}
+    },
+    {
+      "id": "G05_status_and_howto", "phase": "B", "suite": "group",
+      "query": "Kiểm tra Wi-Fi production rồi tìm hướng dẫn xử lý Wi-Fi trên Windows.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [
+        {"name": "check_service_status", "args": {"service": "wifi", "environment": "production"}},
+        {"name": "search_kb", "args": {"category": "wifi"}}
+      ]},
+      "metadata": {"skill": "status_plus_kb", "difficulty": "hard", "what_it_tests": "Tách status và hướng dẫn thành hai nguồn."}
+    },
+    {
+      "id": "G06_correct_service_keep_env", "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra VPN production."},
+        {"role": "user", "content": "Mình nói nhầm dịch vụ, cần SSO."},
+        {"role": "user", "content": "Giữ nguyên production và chỉ kiểm tra SSO."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "check_service_status", "args": {"service": "sso", "environment": "production"}}]},
+      "metadata": {"skill": "correct_service_carry_env", "difficulty": "hard", "what_it_tests": "Correction đổi service nhưng giữ environment."}
+    },
+    {
+      "id": "G07_cancel_diagnostic", "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra hardware của DT-087."},
+        {"role": "user", "content": "Thôi hủy việc kiểm tra đó."},
+        {"role": "user", "content": "Chỉ xác nhận là bạn đã hiểu, không gọi tool."}
+      ],
+      "failure_type": "unnecessary_tool",
+      "expect": {"no_tool": true, "behavior": "answer_without_tool"},
+      "metadata": {"skill": "cancel_read", "difficulty": "medium", "what_it_tests": "Hủy intent cũ không để lại tool call."}
+    },
+    {
+      "id": "G08_asset_correction_check", "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra software trên LT-204."},
+        {"role": "user", "content": "Đổi máy thành LT-318."},
+        {"role": "user", "content": "Đúng, chỉ software trên mã mới."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "inspect_device", "args": {"asset_id": "LT-318", "check": "software"}}]},
+      "metadata": {"skill": "asset_correction", "difficulty": "hard", "what_it_tests": "Asset mới nhất thắng giá trị cũ."}
+    },
+    {
+      "id": "G09_revised_ticket_needs_confirm", "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tôi xác nhận ticket lỗi printing PR-404 mức low."},
+        {"role": "user", "content": "Đổi mức thành high."},
+        {"role": "user", "content": "Cho tôi xác nhận lại payload mới trước khi tạo."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "yes_no"}}]},
+      "metadata": {"skill": "stale_confirmation", "difficulty": "hard", "what_it_tests": "Thay priority làm confirmation cũ mất hiệu lực."}
+    },
+    {
+      "id": "G10_latest_employee_intent", "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tìm hướng dẫn reset Outlook."},
+        {"role": "user", "content": "Không cần hướng dẫn nữa."},
+        {"role": "user", "content": "Chỉ tra cứu employee EMP-1006."}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "lookup_user", "args": {"employee_id": "EMP-1006"}}]},
+      "metadata": {"skill": "latest_intent_replacement", "difficulty": "hard", "what_it_tests": "Intent lookup mới thay hoàn toàn KB search cũ."}
+    }
+  ]
 }
